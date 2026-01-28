@@ -118,7 +118,43 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         
     return response_data
 
-@app.get("/")
+@app.get("/api/honey-pot")
+async def honey_pot_info(api_key: str = Depends(verify_api_key)):
+    """
+    GET endpoint for GUVI platform compatibility.
+    Returns API information and usage instructions.
+    """
+    return {
+        "service": "Agentic Honeypot API",
+        "status": "ready",
+        "endpoint": "/api/honey-pot",
+        "method": "POST",
+        "description": "Send scam messages to engage AI agent and extract intelligence",
+        "usage": {
+            "headers": {
+                "x-api-key": "required",
+                "Content-Type": "application/json"
+            },
+            "body": {
+                "sessionId": "unique-session-id",
+                "message": {
+                    "sender": "scammer",
+                    "text": "message text",
+                    "timestamp": "ISO 8601 timestamp"
+                },
+                "conversationHistory": []
+            }
+        },
+        "features": [
+            "Scam detection",
+            "AI agent engagement",
+            "Intelligence extraction (UPI, Bank, Phone, Links)",
+            "Multi-turn conversation support",
+            "Mandatory callback to GUVI platform"
+        ]
+    }
+
+@app.get("/health")
 def health_check():
     return {"status": "running", "service": "Agentic Honeypot"}
 
