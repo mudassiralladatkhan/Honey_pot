@@ -15,6 +15,17 @@ logger = logging.getLogger("honeypot-api")
 
 app = FastAPI(title="Agentic Honeypot API")
 
+# Add CORS Middleware to allow requests from GUVI platform (browser-based)
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
 # Initialize modules
 detector = ScamDetector()
 agent = AgentEngine()
