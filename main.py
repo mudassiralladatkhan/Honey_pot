@@ -119,10 +119,11 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
     return response_data
 
 @app.get("/api/honey-pot")
-async def honey_pot_info(api_key: str = Depends(verify_api_key)):
+async def honey_pot_info():
     """
     GET endpoint for GUVI platform compatibility.
     Returns API information and usage instructions.
+    No authentication required for info endpoint.
     """
     return {
         "service": "Agentic Honeypot API",
