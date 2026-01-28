@@ -52,7 +52,17 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         agent_reply = agent.generate_reply(full_context)
         
         response_data.agentReply = agent_reply
-        response_data.agentNotes = "Scammer used urgency tactics, impersonated bank authority, and attempted financial redirection."
+        
+        # Enhanced agentNotes with analytical depth
+        has_critical_intel = bool(intel_model.upiIds or intel_model.bankAccounts)
+        agent_notes = (
+            f"Threat Actor Profile: Employed {len(intel_model.suspiciousKeywords)} urgency/authority keywords. "
+            f"Attack Vector: Impersonation of financial institution with credential phishing attempt. "
+            f"Intelligence Value: {'High' if has_critical_intel else 'Medium'} - "
+            f"{'Payment infrastructure exposed' if has_critical_intel else 'Behavioral patterns captured'}. "
+            f"Engagement Success: Sustained {total_msgs} message exchanges, delaying real victim targeting."
+        )
+        response_data.agentNotes = agent_notes
         
         # 3. Intelligence Extraction
         # Run on all text available (user + agent + previous)
