@@ -79,7 +79,7 @@ class AgentEngine:
                 model=model,
                 messages=messages,
                 max_tokens=100,
-                temperature=0.7
+                temperature=0.9
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
