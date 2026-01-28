@@ -148,8 +148,7 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
 from fastapi import Request
 
 @app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
-@app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
-async def honeypot_test(request: Request):
+async def honeypot_test():
     """
     Fail-safe endpoint for GUVI Tester.
     Returns success status unconditionally to pass connectivity check.
