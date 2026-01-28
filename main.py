@@ -145,7 +145,7 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         
     return response_data
 
-@app.post("/api/honey-pot/test")
+@app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
 async def honeypot_test(api_key: str = Depends(verify_api_key)):
     """
     Dedicated endpoint for GUVI API Endpoint Tester.
