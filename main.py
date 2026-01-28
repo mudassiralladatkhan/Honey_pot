@@ -46,10 +46,26 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
     response_data = HoneypotResponse(scamDetected=is_scam)
     
     if is_scam:
-        # 2. Agent Engagement
+        # 2. Agent Engagement (with timeout handling for GUVI platform)
         # Combine history + current to give agent full context
         full_context = history + [current_msg]
-        agent_reply = agent.generate_reply(full_context)
+        
+        try:
+            # Try to get agent reply with timeout protection
+            import asyncio
+            from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+            
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(agent.generate_reply, full_context)
+                try:
+                    agent_reply = future.result(timeout=8)  # 8 second timeout for GUVI
+                except FuturesTimeoutError:
+                    # Fallback response if LLM is slow
+                    agent_reply = "What is this? Why is my account having issues? Please explain."
+        except Exception as e:
+            # Fallback if any error
+            logger.error(f"Agent error: {e}")
+            agent_reply = "I don't understand. Can you explain what this is about?"
         
         response_data.agentReply = agent_reply
         
