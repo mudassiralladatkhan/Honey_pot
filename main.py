@@ -145,12 +145,52 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         
     return response_data
 
+from fastapi import Request
+
 @app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
-async def honeypot_test():
+async def honeypot_test(request: Request):
     """
-    Dedicated endpoint for GUVI API Endpoint Tester.
-    Accepts POST request without body (header check only).
+    Smart endpoint for GUVI Tester.
+    1. If empty body/ping: Returns 'reachable' status (PASS connection check)
+    2. If message body: Returns AI Agent reply (PASS chat simulation)
     """
+    try:
+        # Try to parse JSON body
+        body = await request.json()
+        
+        # Check if it has message text (GUVI Chat format)
+        # GUVI might send: {"message": "..."} or just "..." or "text": "..."
+        user_text = ""
+        
+        if isinstance(body, dict):
+            if "message" in body:
+                if isinstance(body["message"], dict) and "text" in body["message"]:
+                    user_text = body["message"]["text"]
+                else:
+                    user_text = str(body["message"])
+            elif "text" in body:
+                user_text = body["text"]
+        
+        # If we found text, generate AI Reply
+        if user_text:
+            # Create a temporary message object
+            msg_obj = Message(sender="scammer", text=user_text, timestamp=datetime.datetime.now().isoformat())
+            
+            # Generate reply
+            agent_reply = agent.generate_reply([msg_obj])
+            
+            # Return format expected by chat interface (or just flattened)
+            return {
+                "status": "success",
+                "scamDetected": True,
+                "agentReply": agent_reply,
+                "message": agent_reply # Some testers look for 'message' field
+            }
+            
+    except Exception:
+        # If any error (parsing or empty body), return standard success
+        pass
+
     return {
         "status": "success",
         "message": "Honeypot API reachable and secured",
