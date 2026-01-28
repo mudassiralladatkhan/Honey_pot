@@ -154,12 +154,25 @@ async def honeypot_test(request: Request):
     1. If empty body/ping: Returns 'reachable' status (PASS connection check)
     2. If message body: Returns AI Agent reply (PASS chat simulation)
     """
+    # Default success response
+    success_response = {
+        "status": "success",
+        "message": "Honeypot API reachable and secured",
+        "service": "Agentic Honeypot"
+    }
+
+    if request.method == "GET":
+        return success_response
+
     try:
-        # Try to parse JSON body
+        # Only try to parse if there's content
+        body_bytes = await request.body()
+        if not body_bytes:
+            return success_response
+            
         body = await request.json()
         
         # Check if it has message text (GUVI Chat format)
-        # GUVI might send: {"message": "..."} or just "..." or "text": "..."
         user_text = ""
         
         if isinstance(body, dict):
