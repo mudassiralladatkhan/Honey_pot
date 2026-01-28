@@ -1,15 +1,29 @@
-import openai
+from groq import Groq
 from config import Config
 from models import Message
 import logging
 
 class AgentEngine:
     def __init__(self):
-        self.api_key = Config.OPENAI_API_KEY
+        # Try Groq first (free), fallback to OpenAI if available
+        self.groq_key = Config.GROQ_API_KEY
+        self.openai_key = Config.OPENAI_API_KEY
         self.client = None
-        if self.api_key:
+        self.provider = None
+        
+        if self.groq_key:
             try:
-                self.client = openai.OpenAI(api_key=self.api_key)
+                self.client = Groq(api_key=self.groq_key)
+                self.provider = "groq"
+                logging.info("Using Groq API (Free)")
+            except Exception as e:
+                logging.error(f"Failed to initialize Groq client: {e}")
+        elif self.openai_key:
+            try:
+                import openai
+                self.client = openai.OpenAI(api_key=self.openai_key)
+                self.provider = "openai"
+                logging.info("Using OpenAI API")
             except Exception as e:
                 logging.error(f"Failed to initialize OpenAI client: {e}")
 
@@ -46,13 +60,16 @@ class AgentEngine:
             messages.append({"role": role, "content": msg.text})
 
         try:
+            # Choose model based on provider
+            model = "llama-3.1-8b-instant" if self.provider == "groq" else "gpt-3.5-turbo"
+            
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=model,
                 messages=messages,
                 max_tokens=100,
                 temperature=0.7
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
-            logging.error(f"OpenAI Error: {e}")
+            logging.error(f"LLM Error ({self.provider}): {e}")
             return "I am having trouble with my network, please wait..."
