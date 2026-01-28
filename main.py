@@ -53,18 +53,7 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         
         response_data.agentReply = agent_reply
         
-        # Enhanced agentNotes with analytical depth
-        has_critical_intel = bool(intel_model.upiIds or intel_model.bankAccounts)
-        agent_notes = (
-            f"Threat Actor Profile: Employed {len(intel_model.suspiciousKeywords)} urgency/authority keywords. "
-            f"Attack Vector: Impersonation of financial institution with credential phishing attempt. "
-            f"Intelligence Value: {'High' if has_critical_intel else 'Medium'} - "
-            f"{'Payment infrastructure exposed' if has_critical_intel else 'Behavioral patterns captured'}. "
-            f"Engagement Success: Sustained {total_msgs} message exchanges, delaying real victim targeting."
-        )
-        response_data.agentNotes = agent_notes
-        
-        # 3. Intelligence Extraction
+        # 3. Intelligence Extraction (MOVED UP - needed for agentNotes)
         # Run on all text available (user + agent + previous)
         # Construct raw text blob
         all_text = " ".join([m.text for m in history]) + " " + current_msg.text
@@ -73,8 +62,17 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
         intel_model = ExtractedIntelligence(**extracted_data)
         response_data.extractedIntelligence = intel_model
         
-        # 4. Metrics
+        # Enhanced agentNotes with analytical depth (uses intel_model from above)
+        has_critical_intel = bool(intel_model.upiIds or intel_model.bankAccounts)
         total_msgs = len(history) + 1
+        agent_notes = (
+            f"Threat Actor Profile: Employed {len(intel_model.suspiciousKeywords)} urgency/authority keywords. "
+            f"Attack Vector: Impersonation of financial institution with credential phishing attempt. "
+            f"Intelligence Value: {'High' if has_critical_intel else 'Medium'} - "
+            f"{'Payment infrastructure exposed' if has_critical_intel else 'Behavioral patterns captured'}. "
+            f"Engagement Success: Sustained {total_msgs} message exchanges, delaying real victim targeting."
+        )
+        response_data.agentNotes = agent_notes
         response_data.engagementMetrics = EngagementMetrics(
             totalMessagesExchanged=total_msgs,
             engagementDurationSeconds=total_msgs * 30 
