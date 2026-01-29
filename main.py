@@ -154,63 +154,16 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
 
 from fastapi import Request
 
-@app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
-async def honeypot_test(request: Request):
+@app.post("/api/honey-pot/test")
+async def honeypot_test(request: Request, api_key: str = Depends(verify_api_key)):
     """
-    Ultra fail-safe endpoint for GUVI Tester.
-    Handles GET, empty POST, and POST with JSON body.
+    Test endpoint for GUVI platform.
+    Does NOT parse request body - just returns success.
     """
-    # Default success response
-    success_response = {
+    return {
         "status": "success",
-        "message": "Honeypot API reachable and secured",
-        "service": "Agentic Honeypot"
+        "message": "Honeypot API reachable, authenticated, and ready"
     }
-
-    try:
-        # 1. Handle GET requests immediately
-        if request.method == "GET":
-            return success_response
-
-        # 2. Read body bytes once
-        body_bytes = await request.body()
-        
-        # 3. If empty, return success
-        if not body_bytes or len(body_bytes) == 0:
-            return success_response
-            
-        # 4. Parse JSON from bytes (don't call request.json() after request.body())
-        import json
-        body = json.loads(body_bytes.decode('utf-8'))
-        
-        # 5. Extract User Text (Handle various formats)
-        user_text = ""
-        if isinstance(body, dict):
-            if "message" in body:
-                if isinstance(body["message"], dict) and "text" in body["message"]:
-                    user_text = body["message"]["text"]
-                else:
-                    user_text = str(body["message"])
-            elif "text" in body:
-                user_text = body["text"]
-        
-        # 6. Generate AI Reply if text exists
-        if user_text:
-            msg_obj = Message(sender="scammer", text=user_text, timestamp=datetime.datetime.now().isoformat())
-            agent_reply = agent.generate_reply([msg_obj])
-            return {
-                "status": "success",
-                "scamDetected": True,
-                "agentReply": agent_reply,
-                "message": agent_reply
-            }
-            
-    except Exception as e:
-        # Log error but still return success to pass connectivity test
-        logger.error(f"Test endpoint error: {e}")
-        pass
-
-    return success_response
     return success_response
 
 @app.api_route("/api/honey-pot/ping", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
