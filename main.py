@@ -45,6 +45,13 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
     current_msg = request.message
     history = request.conversationHistory
     
+    # Handle case where message is None (GUVI platform edge case)
+    if current_msg is None:
+        return HoneypotResponse(
+            scamDetected=False,
+            agentReply="Please provide a message to analyze"
+        )
+    
     # 1. Scam Detection Logic
     scam_score = detector.evaluate(current_msg.text)
     threshold = Config.SCAM_THRESHOLD

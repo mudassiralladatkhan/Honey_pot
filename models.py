@@ -12,8 +12,8 @@ class Metadata(BaseModel):
     locale: Optional[str] = None
 
 class ConversationRequest(BaseModel):
-    sessionId: str
-    message: Message
+    sessionId: Optional[str] = "default-session"
+    message: Optional[Message] = None
     conversationHistory: List[Message] = []
     metadata: Optional[Metadata] = None
 
