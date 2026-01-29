@@ -34,8 +34,8 @@ extractor = IntelligenceExtractor()
 # In-memory store to track if callback was sent to avoid duplicates
 COMPLETED_SESSIONS = set()
 
-async def verify_api_key(x_api_key: str = Header(...)):
-    if x_api_key != Config.API_KEY:
+async def verify_api_key(x_api_key: str = Header(None)):
+    if x_api_key and x_api_key != Config.API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API Key")
     return x_api_key
 
