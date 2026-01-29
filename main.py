@@ -204,6 +204,20 @@ async def honeypot_test(request: Request):
         pass
 
     return success_response
+    return success_response
+
+@app.api_route("/api/honey-pot/ping", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+async def honeypot_ping():
+    """
+    Ultra-simple ping endpoint for GUVI.
+    NO request parsing, NO dependencies, NO body reading.
+    Just returns success immediately.
+    """
+    return {
+        "status": "success",
+        "message": "Honeypot API is alive",
+        "timestamp": datetime.datetime.now().isoformat()
+    }
 
 @app.get("/api/honey-pot")
 async def honey_pot_info():
