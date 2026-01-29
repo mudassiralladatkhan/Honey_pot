@@ -178,12 +178,61 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
 async def honeypot_test(request: Request, api_key: str = Depends(verify_api_key)):
     """
     Test endpoint for GUVI platform.
-    Accepts both GET and POST. Does NOT parse request body.
+    Returns AI agent reply if scammer message detected, otherwise returns static success.
     """
-    return {
+    # Default success response for connectivity check
+    default_response = {
         "status": "success",
         "message": "Honeypot API reachable, authenticated, and ready"
     }
+    
+    # Handle GET requests
+    if request.method == "GET":
+        return default_response
+    
+    # Try to parse POST body for scammer message
+    try:
+        body_bytes = await request.body()
+        if not body_bytes:
+            return default_response
+        
+        import json
+        body = json.loads(body_bytes.decode('utf-8'))
+        
+        # Extract scammer text from various possible formats
+        scammer_text = None
+        if isinstance(body, dict):
+            # Format 1: {"message": {"text": "..."}}
+            if "message" in body and isinstance(body["message"], dict):
+                scammer_text = body["message"].get("text")
+            # Format 2: {"message": "..."}
+            elif "message" in body and isinstance(body["message"], str):
+                scammer_text = body["message"]
+            # Format 3: {"text": "..."}
+            elif "text" in body:
+                scammer_text = body["text"]
+        
+        # If scammer message found, activate AI agent
+        if scammer_text and len(scammer_text.strip()) > 0:
+            msg_obj = Message(
+                sender="scammer",
+                text=scammer_text,
+                timestamp=datetime.datetime.now().isoformat()
+            )
+            agent_reply = agent.generate_reply([msg_obj])
+            
+            return {
+                "status": "success",
+                "scamDetected": True,
+                "agentReply": agent_reply,
+                "message": agent_reply
+            }
+    
+    except Exception as e:
+        logger.error(f"Test endpoint error: {e}")
+        pass
+    
+    return default_response
 
 @app.api_route("/api/honey-pot/ping", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 async def honeypot_ping():
