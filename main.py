@@ -226,19 +226,30 @@ async def honeypot_test(request: Request):
                 "message": "Honeypot API reachable. Send POST to chat with Sunita Aunty."
             }
 
+        # DEBUG LOGGING: Capture exact GUVI platform request format
+        logger.info("=" * 60)
+        logger.info("🔍 GUVI PLATFORM REQUEST DEBUG")
+        logger.info(f"Method: {request.method}")
+        logger.info(f"URL: {request.url}")
+        logger.info(f"Headers: {dict(request.headers)}")
+        logger.info(f"Content-Type: {request.headers.get('content-type', 'NOT SET')}")
+        logger.info("=" * 60)
+
         # 3. Try to read body/text (Best Effort)
         # EDGE CASE: Handle consumed body (repeated test clicks without cancel)
         body_bytes = b""
         body_consumed = False
         try:
             body_bytes = await request.body()
+            logger.info(f"✅ Body read successfully: {len(body_bytes)} bytes")
+            logger.info(f"Body preview: {body_bytes[:200]}")  # First 200 bytes
         except RuntimeError as e:
             # FastAPI raises RuntimeError if body already consumed
             if "body" in str(e).lower():
                 body_consumed = True
-                logger.warning("Body already consumed - likely repeated test click")
+                logger.warning("⚠️ Body already consumed - likely repeated test click")
         except Exception as e:
-            logger.warning(f"Body read error: {e}")
+            logger.error(f"❌ Body read error: {type(e).__name__}: {e}")
             pass
 
         # 4. Handle Consumed Body Edge Case (Repeated Test Clicks)
