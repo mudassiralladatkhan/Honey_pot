@@ -234,13 +234,14 @@ async def honeypot_test(request: Request):
             pass # Ignore body read errors, return random reply
 
         # 4. If we have body, try to generate REAL AI response
-        if body_bytes and len(body_bytes) > 0:
+        if (body_bytes and len(body_bytes) > 0) or request.headers.get("content-type", "").startswith("multipart/"):
             import json
+            scammer_text = None
+            
+            # STRATEGY A: Try JSON
             try:
                 body = json.loads(body_bytes.decode('utf-8'))
-                scammer_text = None
-                
-                # Robust extraction
+                # Robust extraction from JSON
                 if isinstance(body, dict):
                     if "message" in body:
                         if isinstance(body["message"], dict):
@@ -249,25 +250,35 @@ async def honeypot_test(request: Request):
                             scammer_text = body["message"]
                     elif "text" in body:
                         scammer_text = body["text"]
-                
-                # Activate Agent if text found
-                if scammer_text and len(str(scammer_text).strip()) > 0:
-                    msg_obj = Message(
-                        sender="scammer",
-                        text=str(scammer_text),
-                        timestamp=datetime.datetime.now().isoformat()
-                    )
-                    real_reply = agent.generate_reply([msg_obj])
-                    
-                    # Update response with REAL AI reply
-                    response_data["agentReply"] = real_reply
-                    response_data["reply"] = real_reply
-                    response_data["message"] = real_reply
-                    response_data["agentNotes"] = f"Replied to: {str(scammer_text)[:20]}..."
-                    
             except Exception:
-                pass # Parse error? No problem, use random reply
-
+                pass 
+                
+            # STRATEGY B: Try Form Data (if JSON failed)
+            if not scammer_text:
+                try:
+                    form_data = await request.form()
+                    if "message" in form_data:
+                        scammer_text = form_data["message"]
+                    elif "text" in form_data:
+                        scammer_text = form_data["text"]
+                except Exception:
+                    pass
+            
+            # Activate Agent if text found
+            if scammer_text and len(str(scammer_text).strip()) > 0:
+                msg_obj = Message(
+                    sender="scammer",
+                    text=str(scammer_text),
+                    timestamp=datetime.datetime.now().isoformat()
+                )
+                real_reply = agent.generate_reply([msg_obj])
+                
+                # Update response with REAL AI reply
+                response_data["agentReply"] = real_reply
+                response_data["reply"] = real_reply
+                response_data["message"] = real_reply
+                response_data["agentNotes"] = f"Replied to: {str(scammer_text)[:20]}..."
+                    
     except Exception as e:
         logger.error(f"Test endpoint unexpected error: {e}")
         pass
