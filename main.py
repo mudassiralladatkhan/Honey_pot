@@ -179,10 +179,24 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
 @app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
 async def honeypot_test(request: Request):
     """
-    ULTRA-SIMPLE Test endpoint for GUVI platform.
-    Returns plain text to test if GUVI accepts non-JSON responses.
+    Test endpoint for GUVI platform - EXACT SPEC COMPLIANCE
+    Returns JSONResponse with explicit content-type header
     """
-    return "Honeypot is working! Arre beta, why are you calling me?"
+    # Exact GUVI spec format from documentation section 8
+    response_payload = {
+        "status": "success",
+        "reply": "Arre beta, why are you calling me? My internet is slow today."
+    }
+    
+    # Return with explicit JSONResponse to ensure proper content-type
+    return JSONResponse(
+        content=response_payload,
+        status_code=200,
+        headers={
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+        }
+    )
 
 @app.api_route("/api/honey-pot/ping", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 async def honeypot_ping():
