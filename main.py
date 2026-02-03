@@ -227,13 +227,37 @@ async def honeypot_test(request: Request):
             }
 
         # 3. Try to read body/text (Best Effort)
+        # EDGE CASE: Handle consumed body (repeated test clicks without cancel)
         body_bytes = b""
+        body_consumed = False
         try:
             body_bytes = await request.body()
-        except Exception:
-            pass # Ignore body read errors, return random reply
+        except RuntimeError as e:
+            # FastAPI raises RuntimeError if body already consumed
+            if "body" in str(e).lower():
+                body_consumed = True
+                logger.warning("Body already consumed - likely repeated test click")
+        except Exception as e:
+            logger.warning(f"Body read error: {e}")
+            pass
 
-        # 4. Ultra-Safe Parsing Logic
+        # 4. Handle Consumed Body Edge Case (Repeated Test Clicks)
+        if body_consumed:
+            # Return intelligent response showing we detected the edge case
+            consumed_replies = [
+                "Arre, you already asked me this... my memory is weak, what was the question again?",
+                "Beta, I just replied to you. Are you testing me? I'm old but not that forgetful!",
+                "Wait wait, didn't we just talk? My phone is acting strange today...",
+                "You called again? I thought we finished talking. What happened?"
+            ]
+            smart_reply = random.choice(consumed_replies)
+            response_data["agentReply"] = smart_reply
+            response_data["reply"] = smart_reply
+            response_data["message"] = smart_reply
+            response_data["agentNotes"] = "Edge case handled: Consumed body detected (repeated request)"
+            return response_data
+
+        # 5. Ultra-Safe Parsing Logic
         # We read bytes ONCE and then try to make sense of them manually
         # This avoids FastAPI's request.form() vs request.json() conflict
         if body_bytes and len(body_bytes) > 0:
