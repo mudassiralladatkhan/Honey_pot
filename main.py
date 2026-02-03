@@ -196,26 +196,11 @@ async def honeypot_test(request: Request):
     ]
     random_reply = random.choice(aunty_replies)
 
-    # 1. Default Response Structure (Rich JSON)
-    # We populate ALL fields to ensure GUVI "Final Output" box is not empty
+    # 1. Default Response Structure (GUVI Spec Compliant)
+    # Per GUVI documentation section 8: Agent output should be {"status": "success", "reply": "..."}
     response_data = {
         "status": "success",
-        "scamDetected": True,
-        "agentReply": random_reply,
-        "reply": random_reply, 
-        "message": random_reply,
-        "agentNotes": "Scammer detected using heuristic patterns. Acting confused to delay.",
-        "engagementMetrics": {
-            "totalMessagesExchanged": 5,
-            "engagementDurationSeconds": 150
-        },
-        "extractedIntelligence": {
-            "bankAccounts": [],
-            "upiIds": ["scammer@upi"],
-            "phishingLinks": ["http://fake-bank.com"],
-            "phoneNumbers": ["+919876543210"],
-            "suspiciousKeywords": ["block", "verify", "urgent"]
-        }
+        "reply": random_reply
     }
 
     try:
@@ -262,10 +247,7 @@ async def honeypot_test(request: Request):
                 "You called again? I thought we finished talking. What happened?"
             ]
             smart_reply = random.choice(consumed_replies)
-            response_data["agentReply"] = smart_reply
             response_data["reply"] = smart_reply
-            response_data["message"] = smart_reply
-            response_data["agentNotes"] = "Edge case handled: Consumed body detected (repeated request)"
             return response_data
 
         # 5. Ultra-Safe Parsing Logic
@@ -327,10 +309,7 @@ async def honeypot_test(request: Request):
                     )
                     real_reply = agent.generate_reply([msg_obj])
                     
-                    response_data["agentReply"] = real_reply
                     response_data["reply"] = real_reply
-                    response_data["message"] = real_reply
-                    response_data["agentNotes"] = f"Replied to: {clean_text[:20]}..."
             
             # CRITICAL: Include sessionId in response if it was in request
             if session_id:
