@@ -310,11 +310,11 @@ async def honeypot_test(request: Request):
                     real_reply = agent.generate_reply([msg_obj])
                     
                     response_data["reply"] = real_reply
-            
-            # CRITICAL: Include sessionId in response if it was in request
-            if session_id:
-                response_data["sessionId"] = session_id
-                logger.info(f"✅ SessionId echoed: {session_id}")
+            # REMOVED: SessionId causes GUVI platform validation to fail
+            # GUVI expects EXACTLY 2 fields: {status, reply}
+            # if session_id:
+            #     response_data["sessionId"] = session_id
+            #     logger.info(f"✅ SessionId echoed: {session_id}")
 
     except Exception as e:
         logger.error(f"Test endpoint error: {e}")
