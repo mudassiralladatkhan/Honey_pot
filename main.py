@@ -20,12 +20,14 @@ app = FastAPI(title="Agentic Honeypot API")
 # Add CORS Middleware to allow requests from GUVI platform (browser-based)
 from fastapi.middleware.cors import CORSMiddleware
 
+# Add CORS Middleware with dynamic origin reflection for maximum compatibility
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["*"], # In updated Starlette/FastAPI versions, this is sometimes restrictive with credentials
+    allow_origin_regex=".*", # Allow any origin via regex matching (enables credentials with wildcard-like behavior)
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods (GET, POST, OPTIONS, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global exception handler for GUVI platform compatibility
