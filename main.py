@@ -273,6 +273,7 @@ async def honeypot_test(request: Request):
         # This avoids FastAPI's request.form() vs request.json() conflict
         if body_bytes and len(body_bytes) > 0:
             scammer_text = None
+            session_id = None  # GUVI platform sends this
             decoded_body = ""
             try:
                 decoded_body = body_bytes.decode('utf-8', errors='ignore')
@@ -284,6 +285,9 @@ async def honeypot_test(request: Request):
                 import json
                 body_json = json.loads(decoded_body)
                 if isinstance(body_json, dict):
+                    # Extract sessionId if present (GUVI requirement)
+                    session_id = body_json.get("sessionId")
+                    
                     if "message" in body_json:
                         if isinstance(body_json["message"], dict):
                             scammer_text = body_json["message"].get("text")
@@ -327,6 +331,11 @@ async def honeypot_test(request: Request):
                     response_data["reply"] = real_reply
                     response_data["message"] = real_reply
                     response_data["agentNotes"] = f"Replied to: {clean_text[:20]}..."
+            
+            # CRITICAL: Include sessionId in response if it was in request
+            if session_id:
+                response_data["sessionId"] = session_id
+                logger.info(f"✅ SessionId echoed: {session_id}")
 
     except Exception as e:
         logger.error(f"Test endpoint error: {e}")
