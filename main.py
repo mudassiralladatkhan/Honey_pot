@@ -250,41 +250,41 @@ async def honeypot_test(request: Request):
         "sunita_aunty": {
             "keywords": ["aunty", "auntie", "madam", "ma'am", "sister", "didi", "bhabhi", "mother"],
             "responses": [
-                "Arre beta, internet buffering ho raha hai... can you send again? My grandson installed some new app and now phone is very slow. He said it's for studies but I think he is playing games only.",
-                "My grandson is using phone for game right now, please wait 5 minutes. He says he will finish this level and then give me phone. These children, always on phone! In our time we used to play outside.",
-                "I cannot find my reading glasses anywhere, voice note bhejo na? I kept them somewhere in kitchen I think. My eyesight is becoming weak, doctor said I need new glasses but I keep forgetting to go.",
-                "Beta, I am making tea right now, whistling sound is coming from kitchen... call me after 10 minutes. I have to give tea to my husband also, he gets angry if tea is late. Then we can talk properly.",
-                "Arre, my phone battery is showing only 15% now. Let me put it on charging and I will call you back in some time. This phone battery doesn't last long, I charged it in the morning only but already it's finishing."
+                "Arre beta, my account blocked? But I just went to bank yesterday only, they didn't tell me anything. Are you sure you have correct number? My husband handles all banking, let me call him and ask.",
+                "Beta, I don't understand what is OTP and all. My grandson helps me with phone banking. He is in school right now, can you call after 4pm? He will talk to you and fix everything.",
+                "Account compromised? Hai Ram! But I only have 5000 rupees in account for household expenses. My pension comes next week. Are you from bank? Can you come to my house and explain properly?",
+                "Beta, I am making tea right now, whistling sound is coming... I cannot hear you properly. And I don't know how to check account on phone. My son does all this. Let me give you his number.",
+                "Arre, my phone battery is showing only 15% now. And I cannot see small letters on screen without glasses. Can you send SMS instead? I will show to my daughter when she comes home from office."
             ]
         },
         "ramesh_uncle": {
             "keywords": ["sir", "uncle", "bhaiya", "brother", "sahab", "ji", "gentleman"],
             "responses": [
-                "Hello? Who is this calling? I don't recognize this number at all. Are you from some bank or what? I am getting too many spam calls these days, very irritating. Please tell me clearly who you are and what you want.",
-                "Beta, I am in important office meeting right now with my boss. Can we talk after 2-3 hours when meeting is finished? I cannot talk properly now, everyone is looking at me. Please call in evening time.",
-                "My phone is acting very strange today, screen is freezing and all. Are you calling from Jio customer care? I have been having network issues since yesterday. Can you help me fix this problem?",
-                "I already paid all my electricity bills, water bills, everything last week only. Why are you calling me again? There must be some mistake in your system. Please check properly and don't disturb me unnecessarily.",
-                "Beta, speak more loudly please. I cannot hear you properly, there is too much noise in the background. Are you calling from call center? The line quality is very poor. Can you call from landline instead?"
+                "Hello? Account blocked? I just checked my account this morning, balance is fine. Are you really from SBI? What is your employee ID and branch name? I will call bank manager directly and verify.",
+                "Beta, I am in important office meeting right now. And I don't share account details on phone calls. Send me official email from bank domain, I will reply after verifying. This sounds like fraud call to me.",
+                "Wait, you are saying my account is compromised? I have been banking with SBI for 25 years, never had any problem. Give me your supervisor's number, I want to speak to senior manager right now.",
+                "I already updated my KYC last month at branch. Why are you calling again? There must be some mistake in your system. I am going to visit branch tomorrow and complain about these harassment calls.",
+                "Beta, speak more loudly please. And tell me which branch you are calling from? I cannot hear you properly. The line quality is very poor. Are you really from bank or some call center scam?"
             ]
         },
         "confused_youth": {
             "keywords": ["bro", "dude", "buddy", "friend", "college", "student", "young"],
             "responses": [
-                "Bro, I think you have wrong number. I didn't order anything from Amazon or Flipkart recently. Maybe you want to talk to someone else? Check the number properly and call them. I am busy with my college assignment right now.",
-                "Wait, what are you saying? I don't even have any bank account in SBI, I use HDFC only. This sounds like some scam call to me. My father warned me about these fraud calls. Don't try to fool me, I am not that stupid.",
-                "Dude, I'm sitting in class lecture right now, professor will scold me if phone rings again. Can you just WhatsApp me whatever you want to say? I'll reply when class is over. This is very important lecture, I cannot miss it.",
+                "Bro, I don't even have a bank account in SBI. I use HDFC only for my college fees. This sounds like some scam call to me. My father warned me about these fraud calls. Don't try to fool me, I am not that stupid.",
+                "Wait, what are you saying about my account? I just checked my banking app 5 minutes ago, everything is fine. This is definitely a scam call. I'm going to report this number to cyber crime.",
+                "Dude, I'm sitting in class lecture right now, professor will scold me if phone rings again. And I don't have any SBI account anyway. You have wrong number. Please don't call again.",
                 "Is this some kind of prank call? My friends are always doing these stupid pranks on me. If this is Rahul or Amit, I know it's you guys! Very funny, now stop wasting my time. I have exam tomorrow, need to study.",
-                "Sorry bro, I don't understand what you are trying to say. Can you explain everything in simple English? You are using too many technical words and I am getting confused. Speak slowly and clearly please."
+                "Sorry bro, I don't understand what you are trying to say about blocked account. I am just a student, my parents handle all banking. Can you explain everything in simple English? You are using too many technical words and I am getting confused."
             ]
         },
         "young_girl": {
             "keywords": ["miss", "girl", "daughter", "beta", "princess", "sweetheart"],
             "responses": [
-                "Hello? I don't know you. My papa told me not to talk to strangers on phone. I will tell my papa about this call. He is police officer, he will find you.",
-                "I am only 19 years old, I don't have any bank account or credit card. My father handles all money matters. You should call him instead. I will give you his number if you want.",
-                "Sorry, I am in college right now. My friends are waiting for me. Can you call my mother instead? She handles all these banking things. I don't understand all this.",
-                "I think you have wrong number. I am student, I don't have any loan or credit card. My parents pay for my college fees. Please check your records properly.",
-                "My phone is showing unknown number. I never answer unknown calls. My brother told me these are scam calls. Please don't call me again, I will block this number."
+                "Hello? Account blocked? But I don't even have SBI account! My papa told me not to share any information on phone. I will tell my papa about this call. He is police officer, he will find you.",
+                "I am only 19 years old, I just have basic savings account for pocket money. My father handles all banking. You should call him instead if there is any problem. I will give you his number.",
+                "Sorry, I am in college right now. My friends are waiting for me. And I don't know anything about OTP and account blocking. Can you call my mother instead? She handles all these things.",
+                "I think you have wrong number. I am student, I only have student account with 2000 rupees. My parents pay for everything. Please check your records properly before calling.",
+                "My phone is showing unknown number. I never answer unknown calls about banking. My brother told me these are scam calls to steal money. Please don't call me again, I will block this number and report to police."
             ]
         },
         "elderly_person": {
