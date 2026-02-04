@@ -179,16 +179,54 @@ async def honey_pot_endpoint(request: ConversationRequest, api_key: str = Depend
 @app.api_route("/api/honey-pot/test", methods=["GET", "POST"])
 async def honeypot_test(request: Request):
     """
-    Test endpoint for GUVI platform - EXACT SPEC COMPLIANCE
-    Returns JSONResponse with explicit content-type header
+    Test endpoint for GUVI platform with MULTI-CHARACTER responses
+    Simulates different personas for realistic engagement
     """
-    # Exact GUVI spec format from documentation section 8
-    response_payload = {
-        "status": "success",
-        "reply": "Arre beta, why are you calling me? My internet is slow today."
+    import random
+    
+    # Multiple character personas with varied responses
+    characters = {
+        "sunita_aunty": [
+            "Arre beta, internet buffering ho raha hai... can you send again?",
+            "My grandson is using phone for game, please wait 5 minutes.",
+            "I cannot find my reading glasses, voice note bhejo na?",
+            "Beta, I am making tea, whistling sound coming... call later.",
+            "Arre, my phone battery is low. Let me charge and call you back."
+        ],
+        "ramesh_uncle": [
+            "Hello? Who is this? I don't recognize this number.",
+            "Beta, I am in meeting right now. Can we talk after 2 hours?",
+            "My phone is acting strange today. Are you from Jio customer care?",
+            "I already paid all my bills. Why are you calling me?",
+            "Beta, speak loudly. I cannot hear you properly."
+        ],
+        "confused_youth": [
+            "Bro, wrong number I think. I didn't order anything.",
+            "Wait, what? I don't have any bank account in SBI.",
+            "Dude, I'm in class right now. Can you WhatsApp me?",
+            "Is this some kind of prank? My friends are always doing this.",
+            "Sorry, I don't understand. Can you explain in English?"
+        ],
+        "elderly_person": [
+            "Beta, I am old. I don't understand these technical things.",
+            "My son handles all my banking. You should call him.",
+            "I don't have smartphone. I use basic Nokia phone only.",
+            "Beta, I cannot see small letters. Can you come to my house?",
+            "I am 75 years old. I don't know what is UPI and all."
+        ]
     }
     
-    # Return with explicit JSONResponse to ensure proper content-type
+    # Randomly select a character and response
+    character = random.choice(list(characters.keys()))
+    reply = random.choice(characters[character])
+    
+    # GUVI spec format
+    response_payload = {
+        "status": "success",
+        "reply": reply
+    }
+    
+    # Return with explicit JSONResponse
     return JSONResponse(
         content=response_payload,
         status_code=200,
