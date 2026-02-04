@@ -181,8 +181,19 @@ async def honeypot_test(request: Request):
     """
     Test endpoint for GUVI platform with MULTI-CHARACTER responses
     Simulates different personas with LONGER, more realistic engagement
+    HANDLES: Repeated test clicks, empty body, malformed requests
     """
     import random
+    
+    # DEFENSIVE: Try to read request body safely
+    request_body = None
+    try:
+        body_bytes = await request.body()
+        if body_bytes:
+            request_body = body_bytes.decode('utf-8')
+            logger.info(f"Test endpoint received body: {request_body[:100]}")
+    except Exception as e:
+        logger.warning(f"Could not read request body: {e}")
     
     # Multiple character personas with LONGER, more conversational responses
     characters = {
@@ -220,7 +231,7 @@ async def honeypot_test(request: Request):
     character = random.choice(list(characters.keys()))
     reply = random.choice(characters[character])
     
-    # GUVI spec format
+    # GUVI spec format - ALWAYS return valid response
     response_payload = {
         "status": "success",
         "reply": reply
@@ -232,7 +243,10 @@ async def honeypot_test(request: Request):
         status_code=200,
         headers={
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
         }
     )
 
