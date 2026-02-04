@@ -230,45 +230,98 @@ async def honeypot_test(request: Request):
     
     logger.info(f"[{request_id}] Body Parse Status: {body_parse_status}")
     
+    # Analyze message to detect target demographic
+    scammer_message = ""
+    try:
+        if request_body:
+            import json
+            body_data = json.loads(request_body)
+            if "message" in body_data and isinstance(body_data["message"], dict):
+                scammer_message = body_data["message"].get("text", "").lower()
+            elif "message" in body_data and isinstance(body_data["message"], str):
+                scammer_message = body_data["message"].lower()
+    except:
+        pass
+    
+    logger.info(f"[{request_id}] Scammer message: {scammer_message[:100]}")
+    
     # Multiple character personas with LONGER, more conversational responses
     characters = {
-        "sunita_aunty": [
-            "Arre beta, internet buffering ho raha hai... can you send again? My grandson installed some new app and now phone is very slow. He said it's for studies but I think he is playing games only.",
-            "My grandson is using phone for game right now, please wait 5 minutes. He says he will finish this level and then give me phone. These children, always on phone! In our time we used to play outside.",
-            "I cannot find my reading glasses anywhere, voice note bhejo na? I kept them somewhere in kitchen I think. My eyesight is becoming weak, doctor said I need new glasses but I keep forgetting to go.",
-            "Beta, I am making tea right now, whistling sound is coming from kitchen... call me after 10 minutes. I have to give tea to my husband also, he gets angry if tea is late. Then we can talk properly.",
-            "Arre, my phone battery is showing only 15% now. Let me put it on charging and I will call you back in some time. This phone battery doesn't last long, I charged it in the morning only but already it's finishing."
-        ],
-        "ramesh_uncle": [
-            "Hello? Who is this calling? I don't recognize this number at all. Are you from some bank or what? I am getting too many spam calls these days, very irritating. Please tell me clearly who you are and what you want.",
-            "Beta, I am in important office meeting right now with my boss. Can we talk after 2-3 hours when meeting is finished? I cannot talk properly now, everyone is looking at me. Please call in evening time.",
-            "My phone is acting very strange today, screen is freezing and all. Are you calling from Jio customer care? I have been having network issues since yesterday. Can you help me fix this problem?",
-            "I already paid all my electricity bills, water bills, everything last week only. Why are you calling me again? There must be some mistake in your system. Please check properly and don't disturb me unnecessarily.",
-            "Beta, speak more loudly please. I cannot hear you properly, there is too much noise in the background. Are you calling from call center? The line quality is very poor. Can you call from landline instead?"
-        ],
-        "confused_youth": [
-            "Bro, I think you have wrong number. I didn't order anything from Amazon or Flipkart recently. Maybe you want to talk to someone else? Check the number properly and call them. I am busy with my college assignment right now.",
-            "Wait, what are you saying? I don't even have any bank account in SBI, I use HDFC only. This sounds like some scam call to me. My father warned me about these fraud calls. Don't try to fool me, I am not that stupid.",
-            "Dude, I'm sitting in class lecture right now, professor will scold me if phone rings again. Can you just WhatsApp me whatever you want to say? I'll reply when class is over. This is very important lecture, I cannot miss it.",
-            "Is this some kind of prank call? My friends are always doing these stupid pranks on me. If this is Rahul or Amit, I know it's you guys! Very funny, now stop wasting my time. I have exam tomorrow, need to study.",
-            "Sorry bro, I don't understand what you are trying to say. Can you explain everything in simple English? You are using too many technical words and I am getting confused. Speak slowly and clearly please."
-        ],
-        "elderly_person": [
-            "Beta, I am 75 years old now. I don't understand all these technical things like internet banking and mobile banking. My son handles everything for me. You should call him instead, I will give you his number.",
-            "My son handles all my banking work, pension, everything. I don't know how to do these things on phone. I use basic Nokia phone only for calling, no smartphone. You young people understand all this, I am too old to learn now.",
-            "I don't have any smartphone, beta. I am using simple Nokia phone that my daughter gave me 5 years ago. It can only make calls and send SMS. I don't know what is WhatsApp, UPI and all these new things.",
-            "Beta, I cannot see small letters on phone screen. My eyesight is very weak now, even with glasses I have difficulty reading. Can you please come to my house and explain everything? I live in Sector 12, you can come in evening.",
-            "I am 75 years old, beta. I don't know what is UPI, Paytm, Google Pay and all. In my time we used cash only. Now everything is online, very confusing for old people like me. My children help me with everything."
-        ]
+        "sunita_aunty": {
+            "keywords": ["aunty", "auntie", "madam", "ma'am", "sister", "didi", "bhabhi", "mother"],
+            "responses": [
+                "Arre beta, internet buffering ho raha hai... can you send again? My grandson installed some new app and now phone is very slow. He said it's for studies but I think he is playing games only.",
+                "My grandson is using phone for game right now, please wait 5 minutes. He says he will finish this level and then give me phone. These children, always on phone! In our time we used to play outside.",
+                "I cannot find my reading glasses anywhere, voice note bhejo na? I kept them somewhere in kitchen I think. My eyesight is becoming weak, doctor said I need new glasses but I keep forgetting to go.",
+                "Beta, I am making tea right now, whistling sound is coming from kitchen... call me after 10 minutes. I have to give tea to my husband also, he gets angry if tea is late. Then we can talk properly.",
+                "Arre, my phone battery is showing only 15% now. Let me put it on charging and I will call you back in some time. This phone battery doesn't last long, I charged it in the morning only but already it's finishing."
+            ]
+        },
+        "ramesh_uncle": {
+            "keywords": ["sir", "uncle", "bhaiya", "brother", "sahab", "ji", "gentleman"],
+            "responses": [
+                "Hello? Who is this calling? I don't recognize this number at all. Are you from some bank or what? I am getting too many spam calls these days, very irritating. Please tell me clearly who you are and what you want.",
+                "Beta, I am in important office meeting right now with my boss. Can we talk after 2-3 hours when meeting is finished? I cannot talk properly now, everyone is looking at me. Please call in evening time.",
+                "My phone is acting very strange today, screen is freezing and all. Are you calling from Jio customer care? I have been having network issues since yesterday. Can you help me fix this problem?",
+                "I already paid all my electricity bills, water bills, everything last week only. Why are you calling me again? There must be some mistake in your system. Please check properly and don't disturb me unnecessarily.",
+                "Beta, speak more loudly please. I cannot hear you properly, there is too much noise in the background. Are you calling from call center? The line quality is very poor. Can you call from landline instead?"
+            ]
+        },
+        "confused_youth": {
+            "keywords": ["bro", "dude", "buddy", "friend", "college", "student", "young"],
+            "responses": [
+                "Bro, I think you have wrong number. I didn't order anything from Amazon or Flipkart recently. Maybe you want to talk to someone else? Check the number properly and call them. I am busy with my college assignment right now.",
+                "Wait, what are you saying? I don't even have any bank account in SBI, I use HDFC only. This sounds like some scam call to me. My father warned me about these fraud calls. Don't try to fool me, I am not that stupid.",
+                "Dude, I'm sitting in class lecture right now, professor will scold me if phone rings again. Can you just WhatsApp me whatever you want to say? I'll reply when class is over. This is very important lecture, I cannot miss it.",
+                "Is this some kind of prank call? My friends are always doing these stupid pranks on me. If this is Rahul or Amit, I know it's you guys! Very funny, now stop wasting my time. I have exam tomorrow, need to study.",
+                "Sorry bro, I don't understand what you are trying to say. Can you explain everything in simple English? You are using too many technical words and I am getting confused. Speak slowly and clearly please."
+            ]
+        },
+        "young_girl": {
+            "keywords": ["miss", "girl", "daughter", "beta", "princess", "sweetheart"],
+            "responses": [
+                "Hello? I don't know you. My papa told me not to talk to strangers on phone. I will tell my papa about this call. He is police officer, he will find you.",
+                "I am only 19 years old, I don't have any bank account or credit card. My father handles all money matters. You should call him instead. I will give you his number if you want.",
+                "Sorry, I am in college right now. My friends are waiting for me. Can you call my mother instead? She handles all these banking things. I don't understand all this.",
+                "I think you have wrong number. I am student, I don't have any loan or credit card. My parents pay for my college fees. Please check your records properly.",
+                "My phone is showing unknown number. I never answer unknown calls. My brother told me these are scam calls. Please don't call me again, I will block this number."
+            ]
+        },
+        "elderly_person": {
+            "keywords": ["old", "senior", "retired", "pension", "grandfather", "grandmother"],
+            "responses": [
+                "Beta, I am 75 years old now. I don't understand all these technical things like internet banking and mobile banking. My son handles everything for me. You should call him instead, I will give you his number.",
+                "My son handles all my banking work, pension, everything. I don't know how to do these things on phone. I use basic Nokia phone only for calling, no smartphone. You young people understand all this, I am too old to learn now.",
+                "I don't have any smartphone, beta. I am using simple Nokia phone that my daughter gave me 5 years ago. It can only make calls and send SMS. I don't know what is WhatsApp, UPI and all these new things.",
+                "Beta, I cannot see small letters on phone screen. My eyesight is very weak now, even with glasses I have difficulty reading. Can you please come to my house and explain everything? I live in Sector 12, you can come in evening.",
+                "I am 75 years old, beta. I don't know what is UPI, Paytm, Google Pay and all. In my time we used cash only. Now everything is online, very confusing for old people like me. My children help me with everything."
+            ]
+        }
     }
     
-    logger.info(f"[{request_id}] Step 2: Generating response...")
+    logger.info(f"[{request_id}] Step 2: Analyzing target demographic...")
     
-    # Randomly select a character and response
-    character = random.choice(list(characters.keys()))
-    reply = random.choice(characters[character])
+    # Intelligent character selection based on scammer's message
+    selected_character = None
+    for char_name, char_data in characters.items():
+        for keyword in char_data["keywords"]:
+            if keyword in scammer_message:
+                selected_character = char_name
+                logger.info(f"[{request_id}] 🎯 Detected keyword '{keyword}' -> Character: {char_name}")
+                break
+        if selected_character:
+            break
     
-    logger.info(f"[{request_id}] Selected character: {character}")
+    # Fallback to random if no keywords matched
+    if not selected_character:
+        import random
+        selected_character = random.choice(list(characters.keys()))
+        logger.info(f"[{request_id}] 🎲 No keywords detected, random selection: {selected_character}")
+    
+    # Select response from chosen character
+    reply = random.choice(characters[selected_character]["responses"])
+    
+    logger.info(f"[{request_id}] Selected character: {selected_character}")
     logger.info(f"[{request_id}] Reply length: {len(reply)} characters")
     
     # GUVI spec format - ALWAYS return valid response
