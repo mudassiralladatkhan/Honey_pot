@@ -182,18 +182,53 @@ async def honeypot_test(request: Request):
     Test endpoint for GUVI platform with MULTI-CHARACTER responses
     Simulates different personas with LONGER, more realistic engagement
     HANDLES: Repeated test clicks, empty body, malformed requests
+    COMPREHENSIVE LOGGING: Shows exact error reasons in Railway logs
     """
     import random
+    import time
+    
+    # Generate unique request ID for tracking
+    request_id = f"req_{int(time.time() * 1000)}"
+    
+    logger.info("=" * 80)
+    logger.info(f"🔍 TEST ENDPOINT CALLED - Request ID: {request_id}")
+    logger.info(f"   Method: {request.method}")
+    logger.info(f"   URL: {request.url}")
+    logger.info(f"   Client: {request.client}")
+    logger.info("=" * 80)
     
     # DEFENSIVE: Try to read request body safely
     request_body = None
+    body_parse_status = "NOT_ATTEMPTED"
+    
     try:
+        logger.info(f"[{request_id}] Step 1: Attempting to read request body...")
         body_bytes = await request.body()
+        
         if body_bytes:
             request_body = body_bytes.decode('utf-8')
-            logger.info(f"Test endpoint received body: {request_body[:100]}")
+            body_parse_status = "SUCCESS"
+            logger.info(f"[{request_id}] ✅ Body read successfully ({len(body_bytes)} bytes)")
+            logger.info(f"[{request_id}] Body content: {request_body[:200]}")
+        else:
+            body_parse_status = "EMPTY_BODY"
+            logger.warning(f"[{request_id}] ⚠️ Empty request body received")
+            
+    except RuntimeError as e:
+        body_parse_status = "RUNTIME_ERROR"
+        error_msg = str(e)
+        logger.error(f"[{request_id}] ❌ RuntimeError reading body: {error_msg}")
+        
+        if "body" in error_msg.lower():
+            logger.error(f"[{request_id}] 🔴 REASON: Body already consumed!")
+            logger.error(f"[{request_id}] 🔴 CAUSE: GUVI platform sent repeated request without canceling previous one")
+            logger.error(f"[{request_id}] 🔴 SOLUTION: User should click 'Cancel' before testing again")
+        
     except Exception as e:
-        logger.warning(f"Could not read request body: {e}")
+        body_parse_status = "UNKNOWN_ERROR"
+        logger.error(f"[{request_id}] ❌ Unexpected error reading body: {type(e).__name__}: {e}")
+    
+    logger.info(f"[{request_id}] Body Parse Status: {body_parse_status}")
     
     # Multiple character personas with LONGER, more conversational responses
     characters = {
@@ -227,15 +262,25 @@ async def honeypot_test(request: Request):
         ]
     }
     
+    logger.info(f"[{request_id}] Step 2: Generating response...")
+    
     # Randomly select a character and response
     character = random.choice(list(characters.keys()))
     reply = random.choice(characters[character])
+    
+    logger.info(f"[{request_id}] Selected character: {character}")
+    logger.info(f"[{request_id}] Reply length: {len(reply)} characters")
     
     # GUVI spec format - ALWAYS return valid response
     response_payload = {
         "status": "success",
         "reply": reply
     }
+    
+    logger.info(f"[{request_id}] Step 3: Returning response...")
+    logger.info(f"[{request_id}] ✅ Response generated successfully")
+    logger.info(f"[{request_id}] Response: {response_payload}")
+    logger.info("=" * 80)
     
     # Return with explicit JSONResponse
     return JSONResponse(
@@ -246,7 +291,8 @@ async def honeypot_test(request: Request):
             "Access-Control-Allow-Origin": "*",
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Pragma": "no-cache",
-            "Expires": "0"
+            "Expires": "0",
+            "X-Request-ID": request_id
         }
     )
 
